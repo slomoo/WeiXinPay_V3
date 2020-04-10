@@ -8,57 +8,31 @@
  * 该问题会在后续集成哦~
  */
 class WeiXinPay_V3 {
-    protected $combine_appid;
-    protected $openid;
-    protected $combine_mchid;
-    protected $combine_out_trade_no;
-    protected $mchid;
-    protected $attach;
-    protected $time_start;
-    //protected $time_expire;
-    protected $notify_url;
-    protected $limit_pay;
-    function __construct($combine_appid, $openid, $combine_mchid, $combine_out_trade_no,$mchid,$attach,$time_start,$notify_url,$limit_pay) {
-        $this->combine_appid    = $combine_appid;
-        $this->openid           = $openid;
-        $this->combine_mchid    = $combine_mchid;
-        $this->combine_out_trade_no     = $combine_out_trade_no;
-        $this->mchid            = $mchid;
-        $this->attach           = $attach;
-        $this->time_start       = $time_start;
-        //$this->time_expire      = $time_expire;
-        $this->notify_url       = $notify_url;
-        $this->limit_pay        = $limit_pay;
-        $this->merchant_id      =  your_merchant_id;
-        $this->serial_no        = 'your_serial_no';
-    }
-    public function pay() {
-        //合单下单-JS支付API
-        $closingorder = $this->closingorder();
-        //print_r($closingorder);
-        return $closingorder;
+    function __construct() {
+        $this->merchant_id      =  your merchant_id;
+        $this->serial_no        = 'your serial_no';
     }
 
     //合单下单-JS支付API
-    private function closingorder() {
+    private function closingorder($combine_appid,$openid,$combine_mchid,$combine_out_trade_no,$mchid,$attach,$time_start,$notify_url,$limit_pay) {
         $url = 'https://api.mch.weixin.qq.com/v3/combine-transactions/jsapi';
         $parameters = array(
             //合单商户appid
-            'combine_appid' => $this->combine_appid,  //合单发起方的appid  示例值：wxd678efh567hg6787
+            'combine_appid' => $combine_appid,  //合单发起方的appid  示例值：wxd678efh567hg6787
 
             //合单发起方商户号
-            'combine_mchid' => $this->combine_mchid, //合单发起方商户号。示例值：1900000109
+            'combine_mchid' => $combine_mchid, //合单发起方商户号。示例值：1900000109
 
             //合单商户订单号
-            'combine_out_trade_no' => $this->combine_out_trade_no, //合单支付总订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。示例值：P20150806125346
+            'combine_out_trade_no' => $combine_out_trade_no, //合单支付总订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。示例值：P20150806125346
 
             //子单信息 最多支持子单条数：50  仅支持json格式
             'sub_orders' => json_encode(
                 array(
                     //子单商户号
-                    'mchid'=>$this->mchid, //子单发起方商户号，必须与发起方appid有绑定关系。 示例值：1900000109
+                    'mchid'=>$mchid, //子单发起方商户号，必须与发起方appid有绑定关系。 示例值：1900000109
                     //附加信息
-                    'attach'=>$this->attach //附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用。  示例值：深圳分店
+                    'attach'=>$attach //附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用。  示例值：深圳分店
                 )
             ),
 
@@ -66,21 +40,21 @@ class WeiXinPay_V3 {
             'combine_payer_info' => json_encode(
                 array(
                     //子单商户号
-                    'openid'=>  $this->openid //使用合单appid获取的对应用户openid。是用户在商户appid下的唯一标识。 示例值：oUpF8uMuAJO_M2pxb1Q9zNjWeS6o
+                    'openid'=>  $openid //使用合单appid获取的对应用户openid。是用户在商户appid下的唯一标识。 示例值：oUpF8uMuAJO_M2pxb1Q9zNjWeS6o
                 )
             ),
 
             //交易起始时间
-            'time_start'    => $this->time_start,//订单生成时间，遵循rfc3339标准格式，格式为YYYY-MM-DDTHH:mm:ss+TIMEZONE，YYYY-MM-DD表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。例如：2015-05-20T13:29:35+08:00表示，北京时间2015年5月20日 13点29分35秒。示例值：2019-12-31T15:59:60+08:00
+            'time_start'    => $time_start,//订单生成时间，遵循rfc3339标准格式，格式为YYYY-MM-DDTHH:mm:ss+TIMEZONE，YYYY-MM-DD表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。例如：2015-05-20T13:29:35+08:00表示，北京时间2015年5月20日 13点29分35秒。示例值：2019-12-31T15:59:60+08:00
 
             //交易结束时间
             //'time_expire'    => $this->time_expire,//订单失效时间，遵循rfc3339标准格式，格式为YYYY-MM-DDTHH:mm:ss+TIMEZONE，YYYY-MM-DD表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。例如：2015-05-20T13:29:35+08:00表示，北京时间2015年5月20日 13点29分35秒。示例值：2019-12-31T15:59:60+08:00
 
             //通知地址
-            'notify_url'    => $this->notify_url, //接收微信支付异步通知回调地址，通知url必须为直接可访问的URL，不能携带参数。格式: URL 示例值：https://yourapp.com/notify
+            'notify_url'    => $notify_url, //接收微信支付异步通知回调地址，通知url必须为直接可访问的URL，不能携带参数。格式: URL 示例值：https://yourapp.com/notify
 
             //指定支付方式
-            'limit_pay'     => $this->limit_pay,//指定支付方式 示例值：no_debit
+            'limit_pay'     => $limit_pay,//指定支付方式 示例值：no_debit
         );
         //发起请求的商户（包括直连商户、服务商或渠道商）的商户号mchid
         $merchant_id    =   $this->merchant_id;
@@ -96,7 +70,7 @@ class WeiXinPay_V3 {
         $header[] = 'Accept:application/json';
         $header[] = 'Content-Type:application/json';
         $header[] = 'Authorization:WECHATPAY2-SHA256-RSA2048 '.$sign;
-        $r = $this->_doRequest($url,$parameters,$header);
+        $r = $this->_requestPost($url,$parameters,$header);
         return $r;
     }
 
@@ -104,9 +78,9 @@ class WeiXinPay_V3 {
      * [upload 商户收付通图片上传]
      * @return [type] [正确会返回media_id]
      */
-    public function upload(){
+    public function upload($imgpath){
         $url = 'https://api.mch.weixin.qq.com/v3/merchant/media/upload';
-        $filename = getcwd().'/share.jpg';
+        $filename = $imgpath;
         //发起请求的商户（包括直连商户、服务商或渠道商）的商户号mchid
         $merchant_id    =   $this->merchant_id;
         //证书序列号
@@ -139,12 +113,12 @@ class WeiXinPay_V3 {
         $out .= "\r\n";
         $out .= file_get_contents($filename)."\r\n";
         $out .= "--{$boundary}--\r\n";
-        $r = $this->_doRequest($url,$out,$header);
+        $r = $this->_requestPost($url,$out,$header);
         return $r;
     }
 
     /**
-     * [_doRequest CURL请求]
+     * [_requestPost CURL请求]
      * @param  [type]  $url     [请求目标]
      * @param  [type]  $data    [请求参数]
      * @param  array   $header  [头部参数]
@@ -152,7 +126,7 @@ class WeiXinPay_V3 {
      * @param  integer $timeout [超时时间：单位秒]
      * @return [type]           [结果返回]
      */
-    public function _doRequest($url, $data , $header = array(), $referer = '', $timeout = 30){
+    public function _requestPost($url, $data , $header = array(), $referer = '', $timeout = 30){
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
