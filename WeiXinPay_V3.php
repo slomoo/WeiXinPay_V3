@@ -13,7 +13,19 @@ class WeiXinPay_V3 {
         $this->serial_no        = 'your serial_no';
     }
 
-    //合单下单-JS支付API
+    /**
+     * [closingorder 合单下单-JS支付]
+     * @param  [type] $combine_appid        [合单发起方的appid]
+     * @param  [type] $openid               [使用合单appid获取的对应用户openid]
+     * @param  [type] $combine_mchid        [合单发起方商户号]
+     * @param  [type] $combine_out_trade_no [合单支付总订单号]
+     * @param  [type] $mchid                [子单发起方商户号]
+     * @param  [type] $attach               [附加数据]
+     * @param  [type] $time_start           [订单生成时间]
+     * @param  [type] $notify_url           [回调通知地址]
+     * @param  [type] $limit_pay            [指定支付方式 目前为：no_debit]
+     * @return [type]                       [返回参数预支付交易会话标识：prepay_id。示例值：wx201410272009395522657a690389285100]
+     */
     private function closingorder($combine_appid,$openid,$combine_mchid,$combine_out_trade_no,$mchid,$attach,$time_start,$notify_url,$limit_pay) {
         $url = 'https://api.mch.weixin.qq.com/v3/combine-transactions/jsapi';
         $parameters = array(
@@ -76,7 +88,8 @@ class WeiXinPay_V3 {
 
     /**
      * [upload 商户收付通图片上传]
-     * @return [type] [正确会返回media_id]
+     * @param  [type] $imgpath        [文件物理地址]
+     * @return [type] [返回参数媒体文件标识 media_id 示例值：6uqyGjGrCf2GtyXP8bxrbuH9-aAoTjH-rKeSl3Lf4_So6kdkQu4w8BYVP3bzLtvR38lxt4PjtCDXsQpzqge_hQEovHzOhsLleGFQVRF-U_0]
      */
     public function upload($imgpath){
         $url = 'https://api.mch.weixin.qq.com/v3/merchant/media/upload';
