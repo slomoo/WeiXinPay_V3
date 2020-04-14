@@ -39,21 +39,17 @@ class WeiXinPay_V3 {
             'combine_out_trade_no' => $combine_out_trade_no, //合单支付总订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。示例值：P20150806125346
 
             //子单信息 最多支持子单条数：50  仅支持json格式
-            'sub_orders' => json_encode(
-                array(
-                    //子单商户号
-                    'mchid'=>$mchid, //子单发起方商户号，必须与发起方appid有绑定关系。 示例值：1900000109
-                    //附加信息
-                    'attach'=>$attach //附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用。  示例值：深圳分店
-                )
-            ),
+            'sub_orders' => array(
+                //子单商户号
+                'mchid'=>$mchid, //子单发起方商户号，必须与发起方appid有绑定关系。 示例值：1900000109
+                //附加信息
+                'attach'=>$attach //附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用。  示例值：深圳分店
+            );
 
             //支付者 支付者信息
-            'combine_payer_info' => json_encode(
-                array(
-                    //子单商户号
-                    'openid'=>  $openid //使用合单appid获取的对应用户openid。是用户在商户appid下的唯一标识。 示例值：oUpF8uMuAJO_M2pxb1Q9zNjWeS6o
-                )
+            'combine_payer_info' => array(
+                //子单商户号
+                'openid'=>  $openid //使用合单appid获取的对应用户openid。是用户在商户appid下的唯一标识。 示例值：oUpF8uMuAJO_M2pxb1Q9zNjWeS6o
             ),
 
             //交易起始时间
