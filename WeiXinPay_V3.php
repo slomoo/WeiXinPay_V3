@@ -44,7 +44,7 @@ class WeiXinPay_V3 {
                 'mchid'=>$mchid, //子单发起方商户号，必须与发起方appid有绑定关系。 示例值：1900000109
                 //附加信息
                 'attach'=>$attach //附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用。  示例值：深圳分店
-            );
+            ),
 
             //支付者 支付者信息
             'combine_payer_info' => array(
