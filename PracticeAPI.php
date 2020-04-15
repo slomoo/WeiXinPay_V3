@@ -22,7 +22,7 @@ public function FeePay_V3(){
     //子单信息 最多支持子单条数：50
     $sub_orders['mchid']    = 'mchid';
     $sub_orders['attach']           = '深圳分店'; //自定义数据
-    $sub_orders['total_amount']     = intval($price) * 100;
+    $sub_orders['total_amount']     = intval($price * 100); //单位为分
     $sub_orders['currency']         = 'CNY';
     $sub_orders['out_trade_no']     = "20152".time();
     $sub_orders['sub_mchid']        = '二级商户商户号'; //二级商户商户号
@@ -30,7 +30,7 @@ public function FeePay_V3(){
     $sub_orders['profit_sharing']   = true;
     $sub_orders['description']      = '包间预订定金';
     $sub_orders['profit_sharing_settle'] = true;
-    $sub_orders['subsidy_amount']   = intval($price) * 100;
+    $sub_orders['subsidy_amount']   = intval($price * 100);//单位为分
     $openid                 = $openid; //使用合单appid获取的对应用户openid
     $time_start             = '2015-05-20T13:29:35+08:00';//订单生成时间
     $notify_url             = 'https://your domain/xxxx.php';    //回调通知地址
