@@ -9,8 +9,10 @@
  */
 class WeiXinPay_V3 {
     function __construct() {
-        $this->merchant_id      =  your merchant_id;
-        $this->serial_no        = 'your serial_no';
+
+        $__wxPayConf        =   \PhalApi\DI()->config->get('Pay.Pay_V3');
+        $this->merchant_id  =   $__wxPayConf['mchid'];
+        $this->serial_no    =   $__wxPayConf['serial_no'];
     }
 
     /**
@@ -19,62 +21,78 @@ class WeiXinPay_V3 {
      * @param  [type] $openid               [使用合单appid获取的对应用户openid]
      * @param  [type] $combine_mchid        [合单发起方商户号]
      * @param  [type] $combine_out_trade_no [合单支付总订单号]
-     * @param  [type] $mchid                [子单发起方商户号]
-     * @param  [type] $attach               [附加数据]
+     * @param  [type] $sub_orders           [子单信息]
      * @param  [type] $time_start           [订单生成时间]
      * @param  [type] $notify_url           [回调通知地址]
      * @param  [type] $limit_pay            [指定支付方式 目前为：no_debit]
      * @return [type]                       [返回参数预支付交易会话标识：prepay_id。示例值：wx201410272009395522657a690389285100]
      */
-    private function closingorder($combine_appid,$openid,$combine_mchid,$combine_out_trade_no,$mchid,$attach,$time_start,$notify_url,$limit_pay) {
+    public function closingorder($combine_appid,$combine_mchid,$combine_out_trade_no,$sub_orders,$openid,$time_start,$notify_url,$limit_pay) {
         $url = 'https://api.mch.weixin.qq.com/v3/combine-transactions/jsapi';
-        $parameters = array(
-            //合单商户appid
-            'combine_appid' => $combine_appid,  //合单发起方的appid  示例值：wxd678efh567hg6787
+        $parameters = json_encode(array(
+                //合单商户appid
+                'combine_appid' => $combine_appid,  //合单发起方的appid  示例值：wxd678efh567hg6787
 
-            //合单发起方商户号
-            'combine_mchid' => $combine_mchid, //合单发起方商户号。示例值：1900000109
+                //合单发起方商户号
+                'combine_mchid' => $combine_mchid, //合单发起方商户号。示例值：1900000109
 
-            //合单商户订单号
-            'combine_out_trade_no' => $combine_out_trade_no, //合单支付总订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。示例值：P20150806125346
+                //合单商户订单号
+                'combine_out_trade_no' => $combine_out_trade_no, //合单支付总订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。示例值：P20150806125346
 
-            //子单信息 最多支持子单条数：50  仅支持json格式
-            'sub_orders' => array(
-                //子单商户号
-                'mchid'=>$mchid, //子单发起方商户号，必须与发起方appid有绑定关系。 示例值：1900000109
-                //附加信息
-                'attach'=>$attach //附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用。  示例值：深圳分店
-            ),
+                //子单信息 最多支持子单条数：50  仅支持json格式
+                'sub_orders' => array(
+                    array(
+                        //子单商户号
+                        'mchid'=>$sub_orders['mchid'], //子单发起方商户号，必须与发起方appid有绑定关系。 示例值：1900000109
+                        //附加信息
+                        'attach'=>$sub_orders['attach'], //附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用。  示例值：深圳分店
+                        //子单金额，单位为分。
+                        'amount' => array(
+                            'total_amount' => $sub_orders['total_amount'], //示例值：100
+                            'currency'     => $sub_orders['currency'] //示例值：CNY
+                        ),
+                        'out_trade_no' => $sub_orders['out_trade_no'], //商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。特殊规则：最小字符长度为6 示例值：20150806125346
+                        'sub_mchid'  => $sub_orders['sub_mchid'],//二级商户商户号，由微信支付生成并下发。 示例值：1900000109
+                        'detail'     => $sub_orders['detail'],//商品详情描述
+                        'profit_sharing'=> $sub_orders['profit_sharing'], //是否指定分账
+                        'description'=> $sub_orders['description'],//商品描述商品简单描述。需传入应用市场上的APP名字-实际商品名称，例如：天天爱消除-游戏充值。示例值：腾讯充值中心-QQ会员充值
+                        'settle_info'=> array(
+                            'profit_sharing' => $sub_orders['profit_sharing_settle'], //是否分账，与外层profit_sharing同时存在时，以本字段为准。 示例值：true
+                            'subsidy_amount' => $sub_orders['subsidy_amount'] //SettleInfo.profit_sharing为true时，该金额才生效。示例值：10
+                        )
+                    )
+                ),
 
-            //支付者 支付者信息
-            'combine_payer_info' => array(
-                //子单商户号
-                'openid'=>  $openid //使用合单appid获取的对应用户openid。是用户在商户appid下的唯一标识。 示例值：oUpF8uMuAJO_M2pxb1Q9zNjWeS6o
-            ),
+                //支付者 支付者信息
+                'combine_payer_info' => array(
+                    //子单商户号
+                    'openid'=>  $openid //使用合单appid获取的对应用户openid。是用户在商户appid下的唯一标识。 示例值：oUpF8uMuAJO_M2pxb1Q9zNjWeS6o
+                ),
 
-            //交易起始时间
-            'time_start'    => $time_start,//订单生成时间，遵循rfc3339标准格式，格式为YYYY-MM-DDTHH:mm:ss+TIMEZONE，YYYY-MM-DD表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。例如：2015-05-20T13:29:35+08:00表示，北京时间2015年5月20日 13点29分35秒。示例值：2019-12-31T15:59:60+08:00
+                //交易起始时间
+                'time_start'    => $time_start,//订单生成时间，遵循rfc3339标准格式，格式为YYYY-MM-DDTHH:mm:ss+TIMEZONE，YYYY-MM-DD表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。例如：2015-05-20T13:29:35+08:00表示，北京时间2015年5月20日 13点29分35秒。示例值：2019-12-31T15:59:60+08:00
 
-            //交易结束时间
-            //'time_expire'    => $this->time_expire,//订单失效时间，遵循rfc3339标准格式，格式为YYYY-MM-DDTHH:mm:ss+TIMEZONE，YYYY-MM-DD表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。例如：2015-05-20T13:29:35+08:00表示，北京时间2015年5月20日 13点29分35秒。示例值：2019-12-31T15:59:60+08:00
+                //交易结束时间
+                //'time_expire'    => $time_start,//订单失效时间，遵循rfc3339标准格式，格式为YYYY-MM-DDTHH:mm:ss+TIMEZONE，YYYY-MM-DD表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。例如：2015-05-20T13:29:35+08:00表示，北京时间2015年5月20日 13点29分35秒。示例值：2019-12-31T15:59:60+08:00
 
-            //通知地址
-            'notify_url'    => $notify_url, //接收微信支付异步通知回调地址，通知url必须为直接可访问的URL，不能携带参数。格式: URL 示例值：https://yourapp.com/notify
+                //通知地址
+                'notify_url'    => $notify_url, //接收微信支付异步通知回调地址，通知url必须为直接可访问的URL，不能携带参数。格式: URL 示例值：https://yourapp.com/notify
 
-            //指定支付方式
-            'limit_pay'     => $limit_pay,//指定支付方式 示例值：no_debit
+                //指定支付方式
+                'limit_pay'     => array($limit_pay)//指定支付方式 示例值：no_debit
+            )
         );
         //发起请求的商户（包括直连商户、服务商或渠道商）的商户号mchid
         $merchant_id    =   $this->merchant_id;
-        //证书序列号
+        //商户API证书序列号
         $serial_no      =   $this->serial_no;
         //获取私钥
         $mch_private_key=$this->getPrivateKey(getcwd().'/cert/apiclient_key.pem');       //商户私钥
         $date = time();
         $nonce = $this->createNoncestr();
         //post 请求  
-        $sign = $this->sign($url,'POST',$date,$nonce,json_encode($parameters),$mch_private_key,$merchant_id,$serial_no);//$http_method要大写
-        $header[] = 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36';
+        $sign = $this->sign($url,'POST',$date,$nonce,$parameters,$mch_private_key,$merchant_id,$serial_no);//$http_method要大写
+        $header[] = 'User-Agent:233';
         $header[] = 'Accept:application/json';
         $header[] = 'Content-Type:application/json';
         $header[] = 'Authorization:WECHATPAY2-SHA256-RSA2048 '.$sign;
@@ -92,7 +110,7 @@ class WeiXinPay_V3 {
         $filename = $imgpath;
         //发起请求的商户（包括直连商户、服务商或渠道商）的商户号mchid
         $merchant_id    =   $this->merchant_id;
-        //证书序列号
+        //商户API证书序列号
         $serial_no      =   $this->serial_no;
         //获取私钥
         $mch_private_key=$this->getPrivateKey(getcwd().'/cert/apiclient_key.pem');       //商户私钥
@@ -127,7 +145,60 @@ class WeiXinPay_V3 {
     }
 
     /**
-     * [_requestPost CURL请求]
+     * [certificates 获取平台证书]
+     * @return [type] [证书的序列号：serial_no 证书内容：encrypt_certificate]
+     */
+    public function certificates(){
+        $url = 'https://api.mch.weixin.qq.com/v3/certificates';
+
+        //发起请求的商户（包括直连商户、服务商或渠道商）的商户号mchid
+        $merchant_id    =   $this->merchant_id;
+        //商户API证书序列号
+        $serial_no      =   $this->serial_no;
+        //获取私钥
+        $mch_private_key=$this->getPrivateKey(getcwd().'/cert/apiclient_key.pem');       //商户私钥
+        $meta     = '';
+        $date = time();
+        $nonce = $this->createNoncestr();
+        $sign = $this->sign($url,'GET',$date,$nonce,$meta,$mch_private_key,$merchant_id,$serial_no);//$http_method要大写
+        $header[] = 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36';
+        $header[] = 'Accept:application/json';
+        $header[] = 'Authorization:WECHATPAY2-SHA256-RSA2048 '.$sign;
+
+        $r = $this->_requestGet($url,$meta,$header);
+        return $r;
+    }
+
+    /**
+     * [_requestGet CURL GET请求]
+     * @param  [type] $url    [请求目标]
+     * @param  [type] $meta   [请求参数]
+     * @param  [type] $header [头部参数]
+     * @return [type]         [结果返回]
+     */
+    public function _requestGet($url,$meta,$header = array(), $referer = '',  $timeout = 30){
+        $ch = curl_init();
+        //设置抓取的url
+        curl_setopt($ch, CURLOPT_URL, $url);
+        //设置头文件的信息作为数据流输出
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        //设置获取的信息以文件流的形式返回，而不是直接输出。
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        //执行命令
+        $response = curl_exec($ch);
+        if ($error = curl_error($ch)) {
+            die($error);
+        }
+        curl_close($ch);
+        return $response;
+    }
+
+    /**
+     * [_requestPost CURL POST请求]
      * @param  [type]  $url     [请求目标]
      * @param  [type]  $data    [请求参数]
      * @param  array   $header  [头部参数]
@@ -144,7 +215,7 @@ class WeiXinPay_V3 {
         curl_setopt($ch, CURLOPT_SSLVERSION, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POST, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
@@ -167,7 +238,7 @@ class WeiXinPay_V3 {
      * @param  [type] $body            [报文 GET请求时可以为空]
      * @param  [type] $mch_private_key [api 密钥]
      * @param  [type] $merchant_id     [发起请求的商户（包括直连商户、服务商或渠道商）的商户号mchid]
-     * @param  [type] $serial_no       [证书序列号
+     * @param  [type] $serial_no       [证书序列号]
      * @return [type]                  [返回为签名串]
      */
     private function sign($url,$http_method,$timestamp,$nonce,$body,$mch_private_key,$merchant_id,$serial_no){
